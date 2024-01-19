@@ -1,0 +1,87 @@
+﻿@model List<RequestModel>
+
+<div class="container">
+
+    <div id="requestDash">
+        <div class="row" style="height: 200px;align-content: start;">
+            <div class="col-sm-4">
+                <h5>Welcome, Staff Member!</h5>
+            </div>
+            <div class="col-sm-4" style="align-content: center;">
+                <div style="border-radius: 50%; height: 200px; width: 200px; border: 15px solid yellow;">
+                    <p style="margin-top:50px;margin-left:35px;">Open Requests</p>
+                    <p id="openRequestCount" style="margin-top:5px;margin-left:85px;"></p>
+                </div>
+            </div>
+            <div class="col-sm-4" style="align-content: center;">
+                <div style="border-radius: 50%; height: 200px; width: 200px; border: 15px solid green;">
+                    <p style="margin-top:50px;margin-left:35px;">Closed Requests</p>
+                    <p id="closedRequestCount" style="margin-top:5px;margin-left:85px;"></p>
+                </div>
+            </div>
+        </div>
+        <br /><br />
+    </div>
+
+    <div id="requestTable">
+        <a asp-action="SaveToTextFile" class="btn btn-primary" style="float:right;">Export to Text File</a>
+        <table class="table" style="color:white;margin-top:30px;">
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Room No</th>
+                    <th>Name</th>
+                    <th>Request Category</th>
+                    <th>Request Message</th>
+                    <th>Request Timestamp</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var request in Model)
+                {
+                    <tr class="filter-row" data-status="@request.IsRequestCompleted">
+                        <td>@request.RequestId</td>
+                        <td>@request.RoomNo</td>
+                        <td>@request.GuestName</td>
+                        <td>@request.RequestCategory</td>
+                        <td>@request.RequestDescription</td>
+                        <td>@request.RequestTimestamp</td>
+                        <td>@(request.IsRequestCompleted ? "Closed" : "Open")</td>
+                        <td>
+                            @if (!request.IsRequestCompleted)
+                            {
+                                <a asp-action="MarkRequestCompleteByStaff" asp-route-requestId="@request.RequestId" class="btn btn-primary">Close Request</a>
+                            }
+                            else
+                            {
+                                <span>Request Closed</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+            var count = 0;
+            var closeCount = 0;
+            $(".filter-row").each(function () {
+                var status = $(this).data("status").toString().toLowerCase();
+                if (status == "false") {
+                    count = count + 1;
+                }
+                else {
+                    closeCount = closeCount + 1;
+                }
+            });
+            $("#openRequestCount").html(count);
+            $("#closedRequestCount").html(closeCount);
+    });
+</script>

@@ -1,0 +1,159 @@
+﻿@model List<RequestModel>
+
+<div class="container">
+    <div id="welcomeDiv">
+        <div class="row">
+            <div class="col-sm-6">
+                <h5>Welcome, Guest!</h5>
+            </div>
+        </div>
+        <div class="box-shadow" style="margin-top: 10px;">
+            <form>
+                <div class="row mb-3">
+                    <label for="guestName" class="col-sm-2 col-form-label">Enter your Name :</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="guestName" name="guestName" required />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="guestName" class="col-sm-2 col-form-label">Enter your RoomNo :</label>
+                    <div class="col-sm-10">
+                        <input type="text" id="roomNo" name="roomNo" required />
+                    </div>
+                </div>
+            </form>
+            <button id="SaveDetails" class="btn btn-primary" style="margin-bottom:10px;"> Submit </button>
+        </div>
+    </div>
+
+    <div id="requestForm" style="display:none;">
+        <div class="row" style="height: 200px;align-content: start;">
+            <div class="col-sm-4">
+                <h5 id="welcomeh5"></h5>
+            </div>
+            <div class="col-sm-4" style="align-content: center;">
+                <div style="border-radius: 50%; height: 200px; width: 200px; border: 15px solid yellow;">
+                    <p style="margin-top:50px;margin-left:35px;">Open Requests</p>
+                    <p id="openRequestCount" style="margin-top:5px;margin-left:85px;"></p>
+                </div>
+            </div>
+            <div class="col-sm-4" style="align-content: center;">
+                <div style="border-radius: 50%; height: 200px; width: 200px; border: 15px solid green;">
+                    <p style="margin-top:50px;margin-left:35px;">Closed Requests</p>
+                    <p id="closedRequestCount" style="margin-top:5px;margin-left:85px;"></p>
+                </div>
+            </div>
+        </div>
+        <form asp-action="RaiseRequest" method="post" class="box-shadow" style="margin-top: 10px;">
+            <div class="row mb-3">
+                <h5>Raise a Request</h5>
+                <input type="hidden" id="userName" name="userName" />
+                <input type="hidden" id="room" name="room" />
+            </div>
+            <div class="row mb-3">
+                <label for="dropdownMenuButton" class="col-sm-2 col-form-label">Select Request Category : </label>
+                <div class="col-sm-10">
+                    @{
+                        var items = new List<SelectListItem>
+                        {
+                            new SelectListItem { Value = "Housekeeping requests", Text = "Housekeeping requests" },
+                            new SelectListItem { Value = "In-room dining requests", Text = "In-room dining requests" },
+                            new SelectListItem { Value = "Meeting room reservations", Text = "Meeting room reservations" },
+                            new SelectListItem { Value = "Maintenance requests", Text = "Maintenance requests" },
+                            new SelectListItem { Value = "Others", Text = "Others" }
+                        };
+                    }
+                    @Html.DropDownList("category", items, "Select an option", new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="row mb-3">
+                <label for="description" class="col-sm-2 col-form-label">Enter Description of your Request : </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="description" name="description">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-bottom:10px;">Raise Request</button>
+        </form>
+        <br /><br />
+    </div>
+
+    <div id="requestTable" style="display:none;">
+        <table class="table" style="color:white;">
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Room No</th>
+                    <th>Name</th>
+                    <th>Request Category</th>
+                    <th>Request Message</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var request in Model)
+                {
+                    <tr class="filter-row" data-room="@request.RoomNo" data-status="@request.IsRequestCompleted">
+                        <td>@request.RequestId</td>
+                        <td>@request.RoomNo</td>
+                        <td>@request.GuestName</td>
+                        <td>@request.RequestCategory</td>
+                        <td>@request.RequestDescription</td>
+                        <td>@(request.IsRequestCompleted ? "Closed" : "Open")</td>
+                        <td>
+                            @if (!request.IsRequestCompleted)
+                            {
+                                <a asp-action="MarkRequestComplete" asp-route-requestId="@request.RequestId" class="btn btn-primary">Close Request</a>
+                            }
+                            else
+                            {
+                                <span>Request Closed</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#SaveDetails").click(function () {
+            var userName = $("#guestName").val();
+            var roomNo = $("#roomNo").val();
+            var count = 0;
+            var closeCount = 0;
+            if (userName == "" || roomNo == "") {
+                alert("Please Enter Name and RoomNo Before Proceeding!!!");
+                locationreload();
+            }
+            $("#welcomeh5").html("Welcome, " + userName);
+            $("#welcomeDiv").toggle();
+            $("#requestForm").toggle();
+            $(".filter-row").each(function () {
+                var roomNumber = $(this).data("room").toString().toLowerCase();
+                var status = $(this).data("status").toString().toLowerCase();
+                if (roomNumber.includes(roomNo)) {
+                    if (status == "false") {
+                        count = count + 1;
+                    }
+                    else {
+                        closeCount = closeCount + 1;
+                    }
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+            $("#requestTable").toggle();
+            $("#openRequestCount").html(count);
+            $("#closedRequestCount").html(closeCount);
+            $("#userName").val(userName);
+            $("#room").val(roomNo);
+        });
+    });
+</script>
