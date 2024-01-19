@@ -13,7 +13,7 @@ It is a system that lets guest to raise requests for any service they require fr
 
 -System Flow
 
-The system has 2 interface - one for the hotel guest and other for hotel staff.
-By default the system shows guest welcome page.
-To navigate to hotel staff interface, type "YourLocalhostorServer/Request/StaffHomepage" in url search bar. Replace the YourLocalhostorServer part of url with localhost or server address you are running the application on.
-Also, when the you export request details from hotel staff interface, the text file is stored in the HotelGuestInteractionSystem/Output/ directory.
+1. The system has 2 interface - one for the hotel guest and other for hotel staff.
+2. By default the system shows guest welcome page.
+3. To navigate to hotel staff interface, type "YourLocalhostorServer/Request/StaffHomepage" in url search bar. Replace the YourLocalhostorServer part of url with localhost or server address you are running the application on.
+4. Also, when the you export request details from hotel staff interface, the text file is stored in the HotelGuestInteractionSystem/Output/ directory.
